@@ -24,11 +24,14 @@ if ($userid === null) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
     <title>Ground7</title>
 
-    <meta name="twitter:description" content="Elevate your badminton business with Dream Sports template. Empower coaches & players, optimize court performance and unlock industry-leading success for your brand.">
+    <meta name="twitter:description"
+        content="Elevate your badminton business with Dream Sports template. Empower coaches & players, optimize court performance and unlock industry-leading success for your brand.">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Elevate your badminton business with Dream Sports template. Empower coaches & players, optimize court performance and unlock industry-leading success for your brand.">
-    <meta name="keywords" content="badminton, coaching, event, players, training, courts, tournament, athletes, courts rent, lessons, court booking, stores, sports faqs, leagues, chat, wallet, invoice">
+    <meta name="description"
+        content="Elevate your badminton business with Dream Sports template. Empower coaches & players, optimize court performance and unlock industry-leading success for your brand.">
+    <meta name="keywords"
+        content="badminton, coaching, event, players, training, courts, tournament, athletes, courts rent, lessons, court booking, stores, sports faqs, leagues, chat, wallet, invoice">
     <meta name="author" content="Dreamguys - Ground7">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:site" content="@dreamguystech">
@@ -37,7 +40,8 @@ if ($userid === null) {
     <meta name="twitter:image:alt" content="Ground7">
     <meta property="og:url" content="https://Ground7.dreamguystech.com/">
     <meta property="og:title" content="Ground7 -  Booking Coaches, Venue for tournaments, Court Rental template">
-    <meta property="og:description" content="Elevate your badminton business with Dream Sports template. Empower coaches & players, optimize court performance and unlock industry-leading success for your brand.">
+    <meta property="og:description"
+        content="Elevate your badminton business with Dream Sports template. Empower coaches & players, optimize court performance and unlock industry-leading success for your brand.">
     <meta property="og:image" content="../assets/img/meta-image.jpg">
     <meta property="og:image:secure_url" content="assets/img/meta-image.jpg">
     <meta property="og:image:type" content="image/png">
@@ -66,6 +70,32 @@ if ($userid === null) {
         .container {
             margin-top: 30px;
             margin-bottom: 30px;
+        }
+
+        .booking-date-item {
+            cursor: pointer;
+            padding: 10px;
+            margin: 5px;
+            background-color: #f5f5f5;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+
+        .booking-date-item:hover {
+            background-color: #d5d5d5;
+        }
+
+        .time-slot {
+            padding: 10px;
+            margin: 5px;
+            background-color: #e9ecef;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .time-slot:hover {
+            background-color: #d9edf7;
         }
     </style>
 </head>
@@ -97,14 +127,17 @@ if ($userid === null) {
                     <div class="master-academy dull-whitesmoke-bg card">
                         <div class="d-sm-flex justify-content-between align-items-center">
                             <div class="d-sm-flex justify-content-start align-items-center">
-                                <a href="javascript:void(0);"><img class="corner-radius-10" src="assets/img/profiles/avatar-02.png" alt="User" /></a>
+                                <a href="javascript:void(0);"><img class="corner-radius-10"
+                                        src="assets/img/profiles/avatar-02.png" alt="User" /></a>
                                 <div class="info">
                                     <div class="d-flex justify-content-start align-items-center mb-3">
-                                        <span class="text-white dark-yellow-bg color-white me-2 d-flex justify-content-center align-items-center">4.5</span>
+                                        <span
+                                            class="text-white dark-yellow-bg color-white me-2 d-flex justify-content-center align-items-center">4.5</span>
                                         <span>300 Reviews</span>
                                     </div>
                                     <h3 class="mb-2">Kevin Anderson</h3>
-                                    <p>Certified Badminton Coach with a deep understanding of the sport's strategies.</p>
+                                    <p>Certified Badminton Coach with a deep understanding of the sport's strategies.
+                                    </p>
                                 </div>
                             </div>
                             <div class="white-bg">
@@ -114,165 +147,174 @@ if ($userid === null) {
                             </div>
                         </div>
                     </div>
-                    <div class="row text-center">
-                        <div class="col-12">
-                            <div class="card time-date-card">
-                                <section class="booking-date">
-                                    <h3 class="mb-1" style="padding: 30px;">Select Your Slots</h3>
-                                    <div class="list-unstyled owl-carousel date-slider owl-theme mb-40">
-                                        <div class="booking-date-item">
-                                            <h6>Monday</h6>
-                                            <p>Apr 24</p>
-                                        </div>
-                                        <div class="booking-date-item">
-                                            <h6>Tuesday</h6>
-                                            <p>Apr 25</p>
-                                        </div>
-                                        <div class="booking-date-item">
-                                            <h6>Wednesday</h6>
-                                            <p>Apr 26</p>
-                                        </div>
-                                        <div class="booking-date-item">
-                                            <h6>Thursday</h6>
-                                            <p>Apr 27</p>
-                                        </div>
-                                        <div class="booking-date-item">
-                                            <h6>Friday</h6>
-                                            <p>Apr 28</p>
-                                        </div>
-                                        <div class="booking-date-item">
-                                            <h6>Saturday</h6>
-                                            <p>Apr 29</p>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot">
-                                                <span>2:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot">
-                                                <span>2:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot">
-                                                <span>2:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot">
-                                                <span>2:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot">
-                                                <span>3:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot">
-                                                <span>3:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot">
-                                                <span>3:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot">
-                                                <span>3:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot">
-                                                <span>4:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot">
-                                                <span>4:00 PM<i class="fa-regular fa-check-circle"></i></span>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot">
-                                                <span>4:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot">
-                                                <span>4:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot">
-                                                <span>5:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot">
-                                                <span>5:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot active checked">
-                                                <span>5:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot">
-                                                <span>5:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot active">
-                                                <span>6:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot active">
-                                                <span>6:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot active checked">
-                                                <span>6:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot active">
-                                                <span>6:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot active">
-                                                <span>7:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot active">
-                                                <span>7:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot active checked">
-                                                <span>7:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                        <div class="col-12 col-sm-4 col-md-3">
-                                            <div class="time-slot active">
-                                                <span>7:00 PM</span><i class="fa-regular fa-check-circle"></i>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </section>
-                            </div>
+                    <?php
+include '../config.php';
+
+// Get the turf_id from the URL
+$turf_id = isset($_GET['id']) ? $_GET['id'] : 26; // Default to 26 if not set
+
+// Prepare the SQL query
+$sql = "SELECT date, open_time, close_time, is_holiday FROM turf_availability WHERE turf_id = :turf_id";
+$stmt = $conn->prepare($sql);
+$stmt->bindValue(':turf_id', $turf_id, PDO::PARAM_INT);
+$stmt->execute();
+
+$availability = [];
+if ($stmt->rowCount() > 0) {
+    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        if ($row['is_holiday'] == 1) {
+            $availability[$row['date']] = "Holiday";
+            continue;
+        }
+
+        $open_time = strtotime($row['open_time']);
+        $close_time = strtotime($row['close_time']);
+        $slots = [];
+
+        while ($open_time < $close_time) {
+            $slot_start = date("g:i A", $open_time);
+            $open_time = strtotime('+1 hour', $open_time);
+            $slot_end = date("g:i A", $open_time);
+            $slots[] = $slot_start . ' - ' . $slot_end; // Slot in start time - end time format
+        }
+
+        $availability[$row['date']] = $slots;
+    }
+} else {
+    echo "No data found for the provided turf ID.";
+}
+
+?>
+
+<div class="row text-center">
+    <div class="col-12">
+        <div class="card time-date-card">
+            <section class="booking-date">
+                <h3 class="mb-1" style="padding: 30px;">Select Your Slots</h3>
+                <div class="list-unstyled owl-carousel date-slider owl-theme mb-40" id="date-slider">
+                    <?php foreach ($availability as $date => $slots): ?>
+                        <?php
+                            // Get the day of the week
+                            $dayOfWeek = date("l", strtotime($date));
+                        ?>
+                        <div class="item date-item" data-date="<?= $date ?>" data-day="<?= $dayOfWeek ?>">
+                            <button class="btn btn-primary"><?= $dayOfWeek . ', ' . $date ?></button>
                         </div>
-                    </div>
+                    <?php endforeach; ?>
+                </div>
+
+                <div class="row" id="time-slots">
+                    <!-- Time slots will be injected here based on date selection -->
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    // Add an event listener to each date button to load the time slots
+    document.querySelectorAll('.date-item').forEach(function(dateButton) {
+    dateButton.addEventListener('click', function() {
+        var date = this.getAttribute('data-date');
+        var timeSlotsContainer = document.getElementById('time-slots');
+        timeSlotsContainer.innerHTML = ''; // Clear previous slots
+
+        <?php foreach ($availability as $date => $slots): ?>
+            if (date === '<?= $date ?>') {
+                <?php if ($slots === 'Holiday'): ?>
+                    timeSlotsContainer.innerHTML = "<p>No slots available for this date. It's a holiday.</p>";
+                <?php else: ?>
+                    <?php foreach ($slots as $slot): ?>
+                        var slotDiv = document.createElement('div');
+                        slotDiv.classList.add('col-md-3', 'slot');
+                        slotDiv.innerHTML = '<button class="btn btn-secondary slot-btn" data-slot="<?= $slot ?>"><?= $slot ?></button>';
+                        timeSlotsContainer.appendChild(slotDiv);
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            }
+        <?php endforeach; ?>
+    });
+});
+
+// Disable slot button after it is clicked and keep it disabled if clicked again
+document.addEventListener('click', function(event) {
+    if (event.target && event.target.classList.contains('slot-btn')) {
+        if (!event.target.classList.contains('disabled')) {
+            event.target.disabled = true;
+            event.target.classList.add('disabled');
+            event.target.innerHTML = 'Booked'; // Change text to show it's booked
+        }
+    }
+});
+</script>
+
+
+                    <script>
+
+                        // Function to dynamically generate all days of the current month
+                        function generateDates() {
+                            const dateSlider = document.getElementById("date-slider");
+                            const today = new Date();
+
+                            for (let i = 0; i < 30; i++) { // Generate dates for the next 30 days
+                                const date = new Date();
+                                date.setDate(today.getDate() + i);
+
+                                const formattedDate = date.toISOString().split("T")[0]; // YYYY-MM-DD format
+                                const dayName = date.toLocaleString("default", { weekday: "long" });
+                                const monthName = date.toLocaleString("default", { month: "short" });
+
+                                const dayItem = document.createElement("div");
+                                dayItem.classList.add("booking-date-item");
+                                dayItem.dataset.date = formattedDate;
+                                dayItem.innerHTML = `
+            <h6>${dayName}</h6>
+            <p>${monthName} ${date.getDate()}</p>`;
+                                dayItem.addEventListener("click", () => showTimeSlots(formattedDate));
+                                dateSlider.appendChild(dayItem);
+                            }
+                        }
+                        generateDates();
+
+
+                        // Function to show time slots for the selected day
+                        function showTimeSlots(date) {
+                            const timeSlotsContainer = document.getElementById("time-slots");
+                            timeSlotsContainer.innerHTML = ""; // Clear previous slots
+
+                            // Fetch available slots from the backend
+                            fetch(`get_slots.php?date=${date}&turf_id=1`) // Replace '1' with the actual turf ID
+                                .then(response => response.json())
+                                .then(slots => {
+                                    if (slots.length === 0) {
+                                        timeSlotsContainer.innerHTML = `
+                    <div class="col-12"><p>No slots available for the selected date.</p></div>`;
+                                    } else {
+                                        slots.forEach(slot => {
+                                            const slotItem = document.createElement("div");
+                                            slotItem.classList.add("col-12", "col-sm-4", "col-md-3");
+                                            slotItem.innerHTML = `
+                        <div class="time-slot">
+                            <span>${slot}</span><i class="fa-regular fa-check-circle"></i>
+                        </div>`;
+                                            timeSlotsContainer.appendChild(slotItem);
+                                        });
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error("Error fetching slots:", err);
+                                });
+                        }
+
+
+                        // Call the function to populate the dates
+                        generateDates();
+                    </script>
+
                     <div class="text-center btn-row">
-                        <button class="btn btn-primary btn-icon" onclick="nextStep(2)">Next <i class="feather-arrow-right-circle ms-1"></i></button>
+                        <button class="btn btn-primary btn-icon" onclick="nextStep(2)">Next <i
+                                class="feather-arrow-right-circle ms-1"></i></button>
                     </div>
                 </section>
             </div>
@@ -326,8 +368,10 @@ if ($userid === null) {
                         </li>
                     </ul>
                     <div class="text-center btn-row">
-                        <button class="btn btn-primary me-3 btn-icon" onclick="prevStep(1)"><i class="feather-arrow-left-circle me-1"></i> Back</button>
-                        <button class="btn btn-secondary btn-icon" onclick="nextStep(3)">Next <i class="feather-arrow-right-circle ms-1"></i></button>
+                        <button class="btn btn-primary me-3 btn-icon" onclick="prevStep(1)"><i
+                                class="feather-arrow-left-circle me-1"></i> Back</button>
+                        <button class="btn btn-secondary btn-icon" onclick="nextStep(3)">Next <i
+                                class="feather-arrow-right-circle ms-1"></i></button>
                     </div>
                 </section>
             </div>
@@ -337,7 +381,8 @@ if ($userid === null) {
                 <section>
                     <div class="text-center mb-40">
                         <h3 class="mb-1">Payment</h3>
-                        <p class="sub-title">Securely make your payment for the booking. Contact support for assistance.</p>
+                        <p class="sub-title">Securely make your payment for the booking. Contact support for assistance.
+                        </p>
                     </div>
                     <div class="row checkout">
                         <div class="col-12 col-lg-7">
@@ -350,7 +395,8 @@ if ($userid === null) {
                                 </ul>
                             </div>
                             <div style="text-align: center;">
-                                <img src="assets/img/sports-stadium_18181639.gif" alt="Payment Animation" style="max-width: 60%; height: auto; object-fit: cover;">
+                                <img src="assets/img/sports-stadium_18181639.gif" alt="Payment Animation"
+                                    style="max-width: 60%; height: auto; object-fit: cover;">
                             </div>
                         </div>
 
@@ -358,8 +404,10 @@ if ($userid === null) {
                             <aside class="card payment-modes">
                                 <h3 class="border-bottom">Checkout</h3>
                                 <div class="radio" style="text-align: center;">
-                                    <img src="assets/img/money_17110647.gif" alt="Payment Animation" style="width: 40%; max-width: 50%; height: auto; object-fit: cover;">
-                                    <img src="assets/img/happy_11186841.gif" alt="Payment Animation" style="width: 30%; max-width: 30%; height: auto; object-fit: cover;">
+                                    <img src="assets/img/money_17110647.gif" alt="Payment Animation"
+                                        style="width: 40%; max-width: 50%; height: auto; object-fit: cover;">
+                                    <img src="assets/img/happy_11186841.gif" alt="Payment Animation"
+                                        style="width: 30%; max-width: 30%; height: auto; object-fit: cover;">
                                 </div>
                                 <hr />
                                 <ul class="order-sub-total">
@@ -381,8 +429,11 @@ if ($userid === null) {
                                     <h5>₹2448</h5>
                                 </div>
                                 <div class="form-check d-flex justify-content-start align-items-center policy">
-                                    <div class="d-inline-block"><input class="form-check-input" type="checkbox" value id="policy" /></div>
-                                    <label class="form-check-label" for="policy">By clicking 'Send Request', I agree to Dreamsport <a href="privacy-policy.html">Privacy Policy</a> and <a href="terms-condition.html">Terms of Use</a></label>
+                                    <div class="d-inline-block"><input class="form-check-input" type="checkbox" value
+                                            id="policy" /></div>
+                                    <label class="form-check-label" for="policy">By clicking 'Send Request', I agree to
+                                        Dreamsport <a href="privacy-policy.html">Privacy Policy</a> and <a
+                                            href="terms-condition.html">Terms of Use</a></label>
                                 </div>
                                 <div class="d-grid btn-block">
                                     <button type="button" class="btn btn-primary" id="rzp-button1">Proceed $200</button>
@@ -398,7 +449,7 @@ if ($userid === null) {
                                 "name": "Dreamsport",
                                 "description": "Payment for booking",
                                 "image": "https://example.com/your_logo",
-                                "order_id": "", //This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+                                "order_id": "", //This is a sample Order ID. Pass the id obtained in the response of Step 1
                                 "handler": function (response) {
                                     alert(response.razorpay_payment_id);
                                     alert(response.razorpay_order_id);
@@ -424,7 +475,8 @@ if ($userid === null) {
                         </script>
                     </div>
                     <div class="text-center btn-row">
-                        <button class="btn btn-primary me-3 btn-icon" onclick="prevStep(2)"><i class="feather-arrow-left-circle me-1"></i> Back</button>
+                        <button class="btn btn-primary me-3 btn-icon" onclick="prevStep(2)"><i
+                                class="feather-arrow-left-circle me-1"></i> Back</button>
                     </div>
                 </section>
             </div>
@@ -433,12 +485,12 @@ if ($userid === null) {
         <script>
             function nextStep(stepNumber) {
                 document.querySelectorAll('.step').forEach(step => step.style.display = 'none');
-                document.getElementById(`step${stepNumber}`).style.display = 'block';
+                document.getElementById(step${ stepNumber }).style.display = 'block';
             }
 
             function prevStep(stepNumber) {
                 document.querySelectorAll('.step').forEach(step => step.style.display = 'none');
-                document.getElementById(`step${stepNumber}`).style.display = 'block';
+                document.getElementById(step${ stepNumber }).style.display = 'block';
             }
 
             function submitForm() {
@@ -453,7 +505,7 @@ SELECT events.*, turf_owners.turf_name, turf_owners.image
 FROM events 
 LEFT JOIN turf_owners ON events.turf_id = turf_owners.id
 "; // Modified query to join tables
-
+        
         $stmt = $conn->prepare($query); // Use your PDO connection variable
         $stmt->execute();
         $result = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all results as an associative array
@@ -537,17 +589,22 @@ LEFT JOIN turf_owners ON events.turf_id = turf_owners.id
 
         <script src="assets/js/bootstrap.bundle.min.js" type="e06bcb4dc914a7bea883db46-text/javascript"></script>
 
-        <script src="assets/plugins/owl-carousel/owl.carousel.min.js" type="e06bcb4dc914a7bea883db46-text/javascript"></script>
+        <script src="assets/plugins/owl-carousel/owl.carousel.min.js"
+            type="e06bcb4dc914a7bea883db46-text/javascript"></script>
 
         <script src="assets/plugins/select2/js/select2.min.js" type="e06bcb4dc914a7bea883db46-text/javascript"></script>
 
-        <script src="assets/plugins/fancybox/jquery.fancybox.min.js" type="e06bcb4dc914a7bea883db46-text/javascript"></script>
+        <script src="assets/plugins/fancybox/jquery.fancybox.min.js"
+            type="e06bcb4dc914a7bea883db46-text/javascript"></script>
 
-        <script src="assets/plugins/theia-sticky-sidebar/ResizeSensor.js" type="e06bcb4dc914a7bea883db46-text/javascript"></script>
-        <script src="assets/plugins/theia-sticky-sidebar/theia-sticky-sidebar.js" type="e06bcb4dc914a7bea883db46-text/javascript"></script>
+        <script src="assets/plugins/theia-sticky-sidebar/ResizeSensor.js"
+            type="e06bcb4dc914a7bea883db46-text/javascript"></script>
+        <script src="assets/plugins/theia-sticky-sidebar/theia-sticky-sidebar.js"
+            type="e06bcb4dc914a7bea883db46-text/javascript"></script>
 
         <script src="assets/js/script.js" type="e06bcb4dc914a7bea883db46-text/javascript"></script>
-        <script src="../cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js" data-cf-settings="e06bcb4dc914a7bea883db46-|49" defer></script>
+        <script src="../cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js"
+            data-cf-settings="e06bcb4dc914a7bea883db46-|49" defer></script>
 </body>
 
 <!-- Mirrored from coach-detail.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 23 Sep 2024 06:14:56 GMT -->
