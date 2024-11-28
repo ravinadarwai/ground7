@@ -12,8 +12,27 @@ if ($userid === null) {
     echo "No user ID provided.";
     exit();
 }
+// Retrieve `id`, `game_name`, and `game_price` from the URL parameters
+$bookingId = isset($_GET['id']) ? $_GET['id'] : null;
+$gameName = isset($_GET['game_name']) ? $_GET['game_name'] : null;
+$gamePrice = isset($_GET['game_price']) ? $_GET['game_price'] : null;
 
+// Validate if all required parameters are present
+if ($bookingId === null || $gameName === null || $gamePrice === null) {
+    echo "Missing booking details.";
+    exit();
+}
+
+// Store the values in variables for further use
+echo "<h3>Booking Details:</h3>";
+echo "<p>User ID: $userid</p>";
+echo "<p>Booking ID: $bookingId</p>";
+echo "<p>Game Name: $gameName</p>";
+echo "<p>Game Price: ₹$gamePrice</p>";
+
+// Use these variables for your booking functionality
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -124,264 +143,226 @@ if ($userid === null) {
                         <h3 class="mb-1">Time & Date</h3>
                         <p class="sub-title">Book your training session at a time and date that suits your needs.</p>
                     </div>
-                    <div class="master-academy dull-whitesmoke-bg card">
-                        <div class="d-sm-flex justify-content-between align-items-center">
-                            <div class="d-sm-flex justify-content-start align-items-center">
-                                <a href="javascript:void(0);"><img class="corner-radius-10"
-                                        src="assets/img/profiles/avatar-02.png" alt="User" /></a>
-                                <div class="info">
-                                    <div class="d-flex justify-content-start align-items-center mb-3">
-                                        <span
-                                            class="text-white dark-yellow-bg color-white me-2 d-flex justify-content-center align-items-center">4.5</span>
-                                        <span>300 Reviews</span>
-                                    </div>
-                                    <h3 class="mb-2">Kevin Anderson</h3>
-                                    <p>Certified Badminton Coach with a deep understanding of the sport's strategies.
-                                    </p>
-                                </div>
-                            </div>
-                            <div class="white-bg">
-                                <p class="mb-1">Starts From</p>
-                                <h3 class="d-inline-block primary-text mb-0">$150</h3>
-                                <span>/hr</span>
-                            </div>
-                        </div>
-                    </div>
                     <?php
-include '../config.php';
+                    // Include database configuration
+                    include('../config.php'); // Adjust path as needed
+                    
+                    // Query to fetch the coach's information
+                    $query = "SELECT * FROM turf_owners"; // Replace with your actual query
+                    $stmt = $conn->prepare($query);
+                    $stmt->execute();
+                    $coach = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Get the turf_id from the URL
-$turf_id = isset($_GET['id']) ? $_GET['id'] : 26; // Default to 26 if not set
+                    // Check if data is fetched successfully
+                    if ($coach) {
+                        echo '<div class="dull-bg corner-radius-10 coach-info d-md-flex justify-content-start align-items-start m-5 p-5">';
+                        echo '<div class="info w-100">';
+                        echo '<h3 class="d-flex align-items-center justify-content-start mb-0">' . htmlspecialchars($coach['turf_name']) . '<span class="d-flex justify-content-center align-items-center"><i class="fas fa-check-double"></i></span></h3>';
+                        echo '<p>' . htmlspecialchars($coach['description']) . '</p>';
+                        echo '<ul class="d-sm-flex align-items-center">';
+                        echo '<li><img src="assets/img/flag/india.png" alt="Icon">' . htmlspecialchars($coach['turf_location']) . '</li>';
+                        echo '</ul>';
+                        echo '<hr>';
+                        echo '<div class="selected-game-info">';
+                        echo '<h4>Selected Game: ' . htmlspecialchars($gameName) . '</h4>';
+                        echo '<p>Price : ₹' . htmlspecialchars($gamePrice) . '</p>';
+                        echo '</div>';
+                        echo '</div>'; // Close info div
+                        echo '</div>'; // Close coach-info div
+                    } else {
+                        echo '<p>No coach data found.</p>';
+                    }
+                    ?>
 
-// Prepare the SQL query
-$sql = "SELECT date, open_time, close_time, is_holiday FROM turf_availability WHERE turf_id = :turf_id";
-$stmt = $conn->prepare($sql);
-$stmt->bindValue(':turf_id', $turf_id, PDO::PARAM_INT);
-$stmt->execute();
+                    <?php
+                    include '../config.php';
+                    // Get the turf_id from the URL
+                    $turf_id = isset($_GET['id']) ? $_GET['id'] : 26; // Default to 26 if not set
+                    $sql = "SELECT date, open_time, close_time, is_holiday FROM turf_availability WHERE turf_id = :turf_id";
+                    $stmt = $conn->prepare($sql);
+                    $stmt->bindValue(':turf_id', $turf_id, PDO::PARAM_INT);
+                    $stmt->execute();
 
-$availability = [];
-if ($stmt->rowCount() > 0) {
-    while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-        if ($row['is_holiday'] == 1) {
-            $availability[$row['date']] = "Holiday";
-            continue;
-        }
-
-        $open_time = strtotime($row['open_time']);
-        $close_time = strtotime($row['close_time']);
-        $slots = [];
-
-        while ($open_time < $close_time) {
-            $slot_start = date("g:i A", $open_time);
-            $open_time = strtotime('+1 hour', $open_time);
-            $slot_end = date("g:i A", $open_time);
-            $slots[] = $slot_start . ' - ' . $slot_end; // Slot in start time - end time format
-        }
-
-        $availability[$row['date']] = $slots;
-    }
-} else {
-    echo "No data found for the provided turf ID.";
-}
-
-?>
-
-<div class="row text-center">
-    <div class="col-12">
-        <div class="card time-date-card">
-            <section class="booking-date">
-                <h3 class="mb-1" style="padding: 30px;">Select Your Slots</h3>
-                <div class="list-unstyled owl-carousel date-slider owl-theme mb-40" id="date-slider">
-                    <?php foreach ($availability as $date => $slots): ?>
-                        <?php
-                            // Get the day of the week
-                            $dayOfWeek = date("l", strtotime($date));
-                        ?>
-                        <div class="item date-item" data-date="<?= $date ?>" data-day="<?= $dayOfWeek ?>">
-                            <button class="btn btn-primary"><?= $dayOfWeek . ', ' . $date ?></button>
-                        </div>
-                    <?php endforeach; ?>
-                </div>
-
-                <div class="row" id="time-slots">
-                    <!-- Time slots will be injected here based on date selection -->
-                </div>
-            </section>
-        </div>
-    </div>
-</div>
-
-
-<script>
-    // Add an event listener to each date button to load the time slots
-    document.querySelectorAll('.date-item').forEach(function(dateButton) {
-    dateButton.addEventListener('click', function() {
-        var date = this.getAttribute('data-date');
-        var timeSlotsContainer = document.getElementById('time-slots');
-        timeSlotsContainer.innerHTML = ''; // Clear previous slots
-
-        <?php foreach ($availability as $date => $slots): ?>
-            if (date === '<?= $date ?>') {
-                <?php if ($slots === 'Holiday'): ?>
-                    timeSlotsContainer.innerHTML = "<p>No slots available for this date. It's a holiday.</p>";
-                <?php else: ?>
-                    <?php foreach ($slots as $slot): ?>
-                        var slotDiv = document.createElement('div');
-                        slotDiv.classList.add('col-md-3', 'slot');
-                        slotDiv.innerHTML = '<button class="btn btn-secondary slot-btn" data-slot="<?= $slot ?>"><?= $slot ?></button>';
-                        timeSlotsContainer.appendChild(slotDiv);
-                    <?php endforeach; ?>
-                <?php endif; ?>
-            }
-        <?php endforeach; ?>
-    });
-});
-
-// Disable slot button after it is clicked and keep it disabled if clicked again
-document.addEventListener('click', function(event) {
-    if (event.target && event.target.classList.contains('slot-btn')) {
-        if (!event.target.classList.contains('disabled')) {
-            event.target.disabled = true;
-            event.target.classList.add('disabled');
-            event.target.innerHTML = 'Booked'; // Change text to show it's booked
-        }
-    }
-});
-</script>
-
-
-                    <script>
-
-                        // Function to dynamically generate all days of the current month
-                        function generateDates() {
-                            const dateSlider = document.getElementById("date-slider");
-                            const today = new Date();
-
-                            for (let i = 0; i < 30; i++) { // Generate dates for the next 30 days
-                                const date = new Date();
-                                date.setDate(today.getDate() + i);
-
-                                const formattedDate = date.toISOString().split("T")[0]; // YYYY-MM-DD format
-                                const dayName = date.toLocaleString("default", { weekday: "long" });
-                                const monthName = date.toLocaleString("default", { month: "short" });
-
-                                const dayItem = document.createElement("div");
-                                dayItem.classList.add("booking-date-item");
-                                dayItem.dataset.date = formattedDate;
-                                dayItem.innerHTML = `
-            <h6>${dayName}</h6>
-            <p>${monthName} ${date.getDate()}</p>`;
-                                dayItem.addEventListener("click", () => showTimeSlots(formattedDate));
-                                dateSlider.appendChild(dayItem);
+                    $availability = [];
+                    if ($stmt->rowCount() > 0) {
+                        while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                            if ($row['is_holiday'] == 1) {
+                                $availability[$row['date']] = "Holiday";
+                                continue;
                             }
+
+                            $open_time = strtotime($row['open_time']);
+                            $close_time = strtotime($row['close_time']);
+                            $slots = [];
+
+                            while ($open_time < $close_time) {
+                                $slot_start = date("g:i A", $open_time);
+                                $open_time = strtotime('+1 hour', $open_time);
+                                $slot_end = date("g:i A", $open_time);
+                                $slots[] = $slot_start . ' - ' . $slot_end;
+                            }
+
+                            $availability[$row['date']] = $slots;
                         }
-                        generateDates();
+                    } else {
+                        echo "No data found for the provided turf ID.";
+                    }
+                    ?>
 
+                    <div class="row text-center">
+                        <div class="col-12">
+                            <div class="card time-date-card">
+                                <section class="booking-date">
+                                    <h3 class="mb-1" style="padding: 30px;">Select Your Slots</h3>
+                                    <div class="list-unstyled owl-carousel date-slider owl-theme mb-40"
+                                        id="date-slider">
+                                        <?php foreach ($availability as $date => $slots): ?>
+                                            <?php
+                                            $dayOfWeek = date("l", strtotime($date));
+                                            ?>
+                                            <div class="item date-item" data-date="<?= $date ?>"
+                                                data-day="<?= $dayOfWeek ?>">
+                                                <button class="btn btn-primary"><?= $dayOfWeek . ', ' . $date ?></button>
+                                            </div>
+                                        <?php endforeach; ?>
+                                    </div>
 
-                        // Function to show time slots for the selected day
-                        function showTimeSlots(date) {
-                            const timeSlotsContainer = document.getElementById("time-slots");
-                            timeSlotsContainer.innerHTML = ""; // Clear previous slots
-
-                            // Fetch available slots from the backend
-                            fetch(`get_slots.php?date=${date}&turf_id=1`) // Replace '1' with the actual turf ID
-                                .then(response => response.json())
-                                .then(slots => {
-                                    if (slots.length === 0) {
-                                        timeSlotsContainer.innerHTML = `
-                    <div class="col-12"><p>No slots available for the selected date.</p></div>`;
-                                    } else {
-                                        slots.forEach(slot => {
-                                            const slotItem = document.createElement("div");
-                                            slotItem.classList.add("col-12", "col-sm-4", "col-md-3");
-                                            slotItem.innerHTML = `
-                        <div class="time-slot">
-                            <span>${slot}</span><i class="fa-regular fa-check-circle"></i>
-                        </div>`;
-                                            timeSlotsContainer.appendChild(slotItem);
-                                        });
-                                    }
-                                })
-                                .catch(err => {
-                                    console.error("Error fetching slots:", err);
-                                });
-                        }
-
-
-                        // Call the function to populate the dates
-                        generateDates();
-                    </script>
-
-                    <div class="text-center btn-row">
-                        <button class="btn btn-primary btn-icon" onclick="nextStep(2)">Next <i
-                                class="feather-arrow-right-circle ms-1"></i></button>
+                                    <div class="row" id="time-slots">
+                                        <!-- Time slots will be injected here based on date selection -->
+                                    </div>
+                                </section>
+                            </div>
+                        </div>
                     </div>
+
+                    <form id="selectionForm" method="POST" action="">
+                        <input type="hidden" id="selectedDate" name="selectedDate">
+                        <input type="hidden" id="selectedSlot" name="selectedSlot">
+                        <button type="button" class="btn btn-primary" onclick="nextStep(2)">Confirm Selection</button>
+                    </form>
                 </section>
             </div>
+            <script>
+                // Function to handle date and slot selection
+                document.querySelectorAll('.date-item button').forEach(function (button) {
+                    button.addEventListener('click', function () {
+                        // Get selected date and day
+                        const selectedDate = this.getAttribute('data-date');
+                        const selectedDay = this.getAttribute('data-day');
+
+                        // Update the booking confirmation section
+                        document.getElementById('confirmationDate').textContent = `${selectedDay}, ${selectedDate}`;
+
+                        // Show the time slots for the selected date
+                        const selectedSlots = document.querySelector(`[data-date='${selectedDate}']`).dataset.slots;
+                        const slotContainer = document.getElementById('time-slots');
+                        slotContainer.innerHTML = ''; // Clear previous slots
+
+                        selectedSlots.forEach(function (slot) {
+                            const slotDiv = document.createElement('div');
+                            slotDiv.classList.add('slot-item');
+                            slotDiv.textContent = slot;
+                            slotContainer.appendChild(slotDiv);
+                        });
+
+                        // Handle time slot selection and update
+                        slotContainer.addEventListener('click', function (e) {
+                            if (e.target.classList.contains('slot-item')) {
+                                const selectedSlot = e.target.textContent;
+                                document.getElementById('confirmationSlot').textContent = selectedSlot;
+                                document.getElementById('selectedSlot').value = selectedSlot;
+                            }
+                        });
+                    });
+                });
+            </script>
+
 
             <!-- Step 2: Booking Confirmation -->
             <div class="step" id="step2" style="display: none;">
                 <section class="card booking-order-confirmation">
                     <h5 class="mb-3">Booking Details</h5>
+
                     <ul class="booking-info d-lg-flex justify-content-start align-items-center">
                         <li>
                             <h6>Coach Name</h6>
-                            <p>Kevin Anderson</p>
+                            <p><?php echo htmlspecialchars($coach['turf_name']); ?></p>
                         </li>
                         <li>
-                            <h6>Appointment Date</h6>
-                            <p>Mon, Apr 27</p>
+                            <h6>Booking Date</h6>
+                            <p id="confirmationDate">Date not selected</p> <!-- Will be updated dynamically -->
                         </li>
                         <li>
-                            <h6>Appointment Start time</h6>
-                            <p>05:25 AM</p>
-                        </li>
-                        <li>
-                            <h6>Appointment End time</h6>
-                            <p>06:25 AM</p>
+                            <h6>Selected Time Slot</h6>
+                            <p id="confirmationSlot">Slot not selected</p> <!-- Will be updated dynamically -->
                         </li>
                     </ul>
+
                     <h5 class="mb-3">Contact Information</h5>
                     <ul class="contact-info d-lg-flex justify-content-start align-items-center">
                         <li>
                             <h6>Name</h6>
-                            <p>Rodick Tramliar</p>
+                            <p>Rodick Tramliar</p> <!-- Replace with dynamic user data -->
                         </li>
                         <li>
                             <h6>Contact Email Address</h6>
-                            <p>[email&#160;protected]</p>
+                            <p>[email&#160;protected]</p> <!-- Replace with dynamic email data -->
                         </li>
                         <li>
                             <h6>Phone Number</h6>
-                            <p>+1 56565 556558</p>
+                            <p>+1 56565 556558</p> <!-- Replace with dynamic phone data -->
                         </li>
                     </ul>
+
                     <h5 class="mb-3">Payment Information</h5>
                     <ul class="payment-info d-lg-flex justify-content-start align-items-center">
                         <li>
                             <h6>Coach Price</h6>
-                            <p class="primary-text">($150 * 3 hours)</p>
+                            <p class="primary-text">($150 * 3 hours)</p> <!-- Update this based on pricing -->
                         </li>
                         <li>
                             <h6>Subtotal</h6>
-                            <p class="primary-text">$350.00</p>
+                            <p class="primary-text">$350.00</p> <!-- Update based on subtotal -->
                         </li>
                     </ul>
+
                     <div class="text-center btn-row">
-                        <button class="btn btn-primary me-3 btn-icon" onclick="prevStep(1)"><i
-                                class="feather-arrow-left-circle me-1"></i> Back</button>
-                        <button class="btn btn-secondary btn-icon" onclick="nextStep(3)">Next <i
-                                class="feather-arrow-right-circle ms-1"></i></button>
+                        <button class="btn btn-primary me-3 btn-icon" onclick="prevStep(1)">
+                            <i class="feather-arrow-left-circle me-1"></i> Back
+                        </button>
+                        <button class="btn btn-secondary btn-icon" onclick="nextStep(3)">
+                            Next <i class="feather-arrow-right-circle ms-1"></i>
+                        </button>
                     </div>
                 </section>
             </div>
+            <!-- JavaScript to update dynamic content -->
+            <script>
+                // Function to handle date and slot selection from Step 1
+                function updateBookingConfirmation(selectedDate, selectedSlot) {
+                    // Update the booking date and time slot dynamically
+                    document.getElementById('confirmationDate').textContent = selectedDate || 'Date not selected';
+                    document.getElementById('confirmationSlot').textContent = selectedSlot || 'Slot not selected';
+
+                    // Optionally, calculate the subtotal based on selected slots (e.g., $150 per hour)
+                    var pricePerHour = 150; // Set your hourly price here
+                    var hoursBooked = 3; // Example: 3 hours
+                    var subtotal = pricePerHour * hoursBooked;
+                    document.getElementById('subtotal').textContent = "$" + subtotal + ".00"; // Update subtotal
+                }
+
+                // Sample function call (replace this with actual dynamic data)
+                // Assume selectedDate and selectedSlot are passed from Step 1
+                // Example: updateBookingConfirmation('Monday, 2024-11-28', '9:00 AM - 10:00 AM');
+            </script>
 
             <!-- Step 3: Payment -->
             <div class="step" id="step3" style="display: none;">
                 <section>
                     <div class="text-center mb-40">
                         <h3 class="mb-1">Payment</h3>
-                        <p class="sub-title">Securely make your payment for the booking. Contact support for assistance.
+                        <p class="sub-title">Securely make your payment for the booking. Contact support for
+                            assistance.
                         </p>
                     </div>
                     <div class="row checkout">
@@ -431,19 +412,21 @@ document.addEventListener('click', function(event) {
                                 <div class="form-check d-flex justify-content-start align-items-center policy">
                                     <div class="d-inline-block"><input class="form-check-input" type="checkbox" value
                                             id="policy" /></div>
-                                    <label class="form-check-label" for="policy">By clicking 'Send Request', I agree to
+                                    <label class="form-check-label" for="policy">By clicking 'Send Request', I agree
+                                        to
                                         Dreamsport <a href="privacy-policy.html">Privacy Policy</a> and <a
                                             href="terms-condition.html">Terms of Use</a></label>
                                 </div>
                                 <div class="d-grid btn-block">
-                                    <button type="button" class="btn btn-primary" id="rzp-button1">Proceed $200</button>
+                                    <button type="button" class="btn btn-primary" id="rzp-button1">Proceed
+                                        $200</button>
                                 </div>
                             </aside>
                         </div>
                         <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
                         <script>
                             var options = {
-                                "key": "rzp_test_6Z0qG8Q5GjXmzZ", // Enter the Key ID generated from the Dashboard
+                                "key": "rzp_test_lFKziUf5eoehFb", // Enter the Key ID generated from the Dashboard
                                 "amount": "20000", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
                                 "currency": "USD",
                                 "name": "Dreamsport",
@@ -482,22 +465,7 @@ document.addEventListener('click', function(event) {
             </div>
         </div>
 
-        <script>
-            function nextStep(stepNumber) {
-                document.querySelectorAll('.step').forEach(step => step.style.display = 'none');
-                document.getElementById(step${ stepNumber }).style.display = 'block';
-            }
 
-            function prevStep(stepNumber) {
-                document.querySelectorAll('.step').forEach(step => step.style.display = 'none');
-                document.getElementById(step${ stepNumber }).style.display = 'block';
-            }
-
-            function submitForm() {
-                alert("Form Submitted Successfully!");
-                // Place your form submission logic here.
-            }
-        </script>
 
         <?php
         $query = "
@@ -581,6 +549,132 @@ LEFT JOIN turf_owners ON events.turf_id = turf_owners.id
                         behavior: 'smooth'
                     });
                 }
+            }
+        </script>
+        <script>
+            let selectedDate = "null";
+            let selectedSlot = "null";
+
+            // Handle Date Selection
+            document.querySelectorAll('.date-item').forEach(function (dateButton) {
+                dateButton.addEventListener('click', function () {
+                    selectedDate = this.getAttribute('data-date');
+                    document.getElementById("confirmationSlot").textContent = `${selectedDate}`
+                    console.log('Selected Date:', selectedDate);
+                    showTimeSlots(selectedDate);
+                });
+            });
+
+            // Function to show time slots for the selected date
+            function showTimeSlots(date) {
+                const timeSlotsContainer = document.getElementById('time-slots');
+                timeSlotsContainer.innerHTML = ''; // Clear previous slots
+
+                // Example of slot data for the selected date (replace this with actual dynamic data)
+                const slots = <?php echo json_encode($availability); ?>;
+
+                if (slots[date] === "Holiday") {
+                    timeSlotsContainer.innerHTML = `<p>No slots available for this date. It's a holiday.</p>`;
+                } else {
+                    slots[date].forEach(function (slot) {
+                        const slotDiv = document.createElement('div');
+                        slotDiv.classList.add('col-md-3', 'slot');
+                        slotDiv.innerHTML = `<button class="btn btn-secondary slot-btn" data-slot="${slot}">${slot}</button>`;
+                        timeSlotsContainer.appendChild(slotDiv);
+                    });
+                }
+            }
+
+            // Handle Time Slot Selection
+            document.addEventListener('click', function (event) {
+                if (event.target && event.target.classList.contains('slot-btn')) {
+                    if (!event.target.disabled) {
+                        event.target.disabled = true;
+                        event.target.classList.add('disabled');
+                        event.target.innerHTML = 'Booked';
+                        selectedSlot = event.target.getAttribute('data-slot');
+                        document.getElementById("confirmationDate").textContent = `${selectedSlot}`
+                        console.log('Selected Slot:', selectedSlot);
+                    }
+                }
+            });
+
+        </script>
+        <script>
+
+
+            // Slot selection
+            // Handle Time Slot Selection
+            document.addEventListener('click', function (event) {
+                if (event.target && event.target.classList.contains('slot-btn')) {
+                    if (!event.target.disabled) {
+                        event.target.disabled = true;
+                        event.target.classList.add('disabled');
+                        event.target.innerHTML = 'Booked...';
+
+                        // Make an AJAX request to mark the slot as booked (or use a form submission)
+                        const slotTime = event.target.getAttribute('data-slot');
+                        const date = selectedDate;
+
+                        // Example of AJAX request (using Fetch API)
+                        fetch('book_slot.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({ date, slot: slotTime })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                if (data.success) {
+                                    alert('Your booking has been confirmed!');
+                                } else {
+                                    alert('Error booking the slot.');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                alert('There was an error with your booking.');
+                            });
+                    }
+                }
+            });
+
+
+            function submitSelection() {
+                if (selectedDate && selectedSlot) {
+                    // Set hidden input values for form submission
+                    document.getElementById('selectedDate').value = selectedDate;
+                    document.getElementById('selectedSlot').value = selectedSlot;
+
+                    // Dynamically update the second step UI
+                    document.getElementById('confirmationDate').textContent = selectedDate;
+                    document.getElementById('confirmationSlot').textContent = selectedSlot;
+
+                    // Display the second step and hide the first step
+                    document.getElementById('step1').style.display = 'none';  // Hide first step
+                    document.getElementById('step2').style.display = 'block'; // Show second step
+                } else {
+                    alert('Please select both a date and a time slot.');
+                }
+            }
+
+        </script>
+        <script>
+            function nextStep(stepNumber) {
+                document.querySelectorAll('.step').forEach(step => step.style.display = 'none');
+                document.getElementById(`step${stepNumber}`).style.display = 'block';
+            }
+
+            function prevStep(stepNumber) {
+                document.querySelectorAll('.step').forEach(step => step.style.display = 'none');
+                document.getElementById(`step${stepNumber}`).style.display = 'block';
+            }
+
+
+            function submitForm() {
+                alert("Form Submitted Successfully!");
+                // Place your form submission logic here.
             }
         </script>
 
