@@ -20,7 +20,6 @@ try {
 
 <?php
 $razorpay = array(
-    'key_id' => 'rzp_test_lhmCfPyu3URHxq', 
-    'key_secret' => 'fxFSts8bnQd4EViInJF6jCn5
-    ');
+    'key_id' => 'rzp_test_uxKdzs7v17Ts4S', 
+    'key_secret' => 'UHdx7VAXCytr5Bf0AXMev5Iw');
 ?>

@@ -1,8 +1,11 @@
 <?php
 session_start();
 include('../config.php'); // Ensure this contains the PDO connection setup
+
 // Check if the user is logged in by verifying the session
 if (!isset($_SESSION['userid'])) {
+    echo "You are not logged in.";
+    exit();
 }
 
 // Set the user ID either from the session or the URL parameter if available
@@ -12,7 +15,8 @@ if ($userid === null) {
     echo "No user ID provided.";
     exit();
 }
-// Retrieve `id`, `game_name`, and `game_price` from the URL parameters
+
+// Retrieve `bookingId`, `gameName`, and `gamePrice` from the URL parameters
 $bookingId = isset($_GET['id']) ? $_GET['id'] : null;
 $gameName = isset($_GET['game_name']) ? $_GET['game_name'] : null;
 $gamePrice = isset($_GET['game_price']) ? $_GET['game_price'] : null;
@@ -23,15 +27,36 @@ if ($bookingId === null || $gameName === null || $gamePrice === null) {
     exit();
 }
 
-// Store the values in variables for further use
-echo "<h3>Booking Details:</h3>";
-echo "<p>User ID: $userid</p>";
-echo "<p>Booking ID: $bookingId</p>";
-echo "<p>Game Name: $gameName</p>";
-echo "<p>Game Price: ₹$gamePrice</p>";
+// Fetch the user details from the users table using either google_id or user_id
+try {
+    // First, attempt to find the user by google_id
+    $stmt = $conn->prepare("SELECT first_name, last_name, email, phone FROM users WHERE google_id = :userid OR id = :userid");
+    $stmt->execute(['userid' => $userid]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-// Use these variables for your booking functionality
+    // if ($user) {
+    //     // Display the user's details
+    //     echo "<h3>User Details:</h3>";
+    //     echo "<p>Name: " . htmlspecialchars($user['first_name']) . " " . htmlspecialchars($user['last_name']) . "</p>";
+    //     echo "<p>Email: " . htmlspecialchars($user['email']) . "</p>";
+    //     echo "<p>Phone: " . htmlspecialchars($user['phone']) . "</p>";
+    // } else {
+    //     echo "User not found.";
+    // }
+
+    // // Display the booking details
+    // echo "<h3>Booking Details:</h3>";
+    // echo "<p>User ID: $userid</p>";
+    // echo "<p>Booking ID: $bookingId</p>";
+    // echo "<p>Game Name: $gameName</p>";
+    // echo "<p>Game Price: ₹$gamePrice</p>";
+
+} catch (PDOException $e) {
+    echo "Error: " . $e->getMessage();
+    exit();
+}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -297,32 +322,50 @@ echo "<p>Game Price: ₹$gamePrice</p>";
                             <p id="confirmationSlot">Slot not selected</p> <!-- Will be updated dynamically -->
                         </li>
                     </ul>
+                    <?php
+                    // Assuming you have the user and game price data available
+                    $userPhone = htmlspecialchars($user['phone']); // Get the user's phone number
+                    $gamePriceInPaise = $gamePrice * 100; // Convert price to paise (Razorpay expects the amount in paise)
+                    
+                    // Make sure $gamePrice is numeric before multiplying
+                    if (!is_numeric($gamePrice)) {
+                        $gamePriceInPaise = 0; // Default to 0 if the price isn't valid
+                    }
+                    ?>
 
                     <h5 class="mb-3">Contact Information</h5>
-                    <ul class="contact-info d-lg-flex justify-content-start align-items-center">
-                        <li>
-                            <h6>Name</h6>
-                            <p>Rodick Tramliar</p> <!-- Replace with dynamic user data -->
-                        </li>
-                        <li>
-                            <h6>Contact Email Address</h6>
-                            <p>[email&#160;protected]</p> <!-- Replace with dynamic email data -->
-                        </li>
-                        <li>
-                            <h6>Phone Number</h6>
-                            <p>+1 56565 556558</p> <!-- Replace with dynamic phone data -->
-                        </li>
-                    </ul>
+                    <?php if ($user) { ?>
+                        <ul class="contact-info d-lg-flex justify-content-start align-items-center">
+                            <?php
+                            // Check if user has first and last name
+                            if (!empty($user['first_name']) && !empty($user['last_name'])) {
+                                echo "<li><h6>Name</h6><p>" . htmlspecialchars($user['first_name']) . " " . htmlspecialchars($user['last_name']) . "</p></li>";
+                            } else {
+                                echo "<li><h6>Name</h6><p>Update your profile</p></li>";
+                            }
+                            ?>
+                            <li>
+                                <h6>Contact Email Address</h6>
+                                <p><?php echo htmlspecialchars($user['email']); ?></p>
+                            </li>
+                            <li>
+                                <h6>Phone Number</h6>
+                                <p><?php echo htmlspecialchars($user['phone']); ?></p>
+                            </li>
+                        </ul>
+                    <?php } else {
+                        echo "User not found.";
+                    } ?>
 
                     <h5 class="mb-3">Payment Information</h5>
                     <ul class="payment-info d-lg-flex justify-content-start align-items-center">
                         <li>
-                            <h6>Coach Price</h6>
-                            <p class="primary-text">($150 * 3 hours)</p> <!-- Update this based on pricing -->
+                            <h6>Game Name</h6>
+                            <p class="primary-text"><?php echo htmlspecialchars($gameName); ?></p>
                         </li>
                         <li>
-                            <h6>Subtotal</h6>
-                            <p class="primary-text">$350.00</p> <!-- Update based on subtotal -->
+                            <h6>Price</h6>
+                            <p class="primary-text"><?php echo htmlspecialchars($gamePrice); ?></p>
                         </li>
                     </ul>
 
@@ -330,159 +373,66 @@ echo "<p>Game Price: ₹$gamePrice</p>";
                         <button class="btn btn-primary me-3 btn-icon" onclick="prevStep(1)">
                             <i class="feather-arrow-left-circle me-1"></i> Back
                         </button>
-                        <button class="btn btn-secondary btn-icon" onclick="nextStep(3)">
-                            Next <i class="feather-arrow-right-circle ms-1"></i>
-                        </button>
+                        <div class="d-grid btn-block">
+                            <button type="button" class="btn btn-primary" id="rzp-button1">Proceed with
+                                ₹<?php echo $gamePrice; ?></button>
+                        </div>
                     </div>
                 </section>
             </div>
-            <!-- JavaScript to update dynamic content -->
+            <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
             <script>
-                // Function to handle date and slot selection from Step 1
-                function updateBookingConfirmation(selectedDate, selectedSlot) {
-                    // Update the booking date and time slot dynamically
-                    document.getElementById('confirmationDate').textContent = selectedDate || 'Date not selected';
-                    document.getElementById('confirmationSlot').textContent = selectedSlot || 'Slot not selected';
+                var options = {
+                    "key": "rzp_test_uxKdzs7v17Ts4S", // Enter the Key ID generated from the Dashboard
+                    "amount": "<?php echo $gamePriceInPaise; ?>", // Amount is in paise (100 paise = 1 INR)
+                    "currency": "INR", // Assuming game price is in INR
+                    "name": "Dreamsport",
+                    "description": "Payment for booking",
+                    "image": "https://example.com/your_logo", // Change to your logo URL
+                    "order_id": "", // This should be populated with the Razorpay order ID after creating an order
+                    "handler": function (response) {
+                        alert(response.razorpay_payment_id);
+                        alert(response.razorpay_order_id);
+                        alert(response.razorpay_signature);
+                    },
+                    "prefill": {
+                        "name": "<?php echo htmlspecialchars($user['first_name']) . ' ' . htmlspecialchars($user['last_name']); ?>", // User's full name
+                        "email": "<?php echo htmlspecialchars($user['email']); ?>", // User's email
+                        "contact": "<?php echo $userPhone; ?>" // User's phone number
+                    },
+                    "notes": {
+                        "address": "Razorpay Corporate Office"
+                    },
+                    "theme": {
+                        "color": "#F37254" // Customize the theme color
+                    }
+                };
 
-                    // Optionally, calculate the subtotal based on selected slots (e.g., $150 per hour)
-                    var pricePerHour = 150; // Set your hourly price here
-                    var hoursBooked = 3; // Example: 3 hours
-                    var subtotal = pricePerHour * hoursBooked;
-                    document.getElementById('subtotal').textContent = "$" + subtotal + ".00"; // Update subtotal
-                }
-
-                // Sample function call (replace this with actual dynamic data)
-                // Assume selectedDate and selectedSlot are passed from Step 1
-                // Example: updateBookingConfirmation('Monday, 2024-11-28', '9:00 AM - 10:00 AM');
+                var rzp1 = new Razorpay(options);
+                document.getElementById('rzp-button1').onclick = function (e) {
+                    rzp1.open();
+                    e.preventDefault();
+                };
             </script>
 
-            <!-- Step 3: Payment -->
-            <div class="step" id="step3" style="display: none;">
-                <section>
-                    <div class="text-center mb-40">
-                        <h3 class="mb-1">Payment</h3>
-                        <p class="sub-title">Securely make your payment for the booking. Contact support for
-                            assistance.
-                        </p>
-                    </div>
-                    <div class="row checkout">
-                        <div class="col-12 col-lg-7">
-                            <div class="card booking-details">
-                                <h3 class="border-bottom">Order Summary</h3>
-                                <ul>
-                                    <li><i class="feather-calendar me-2"></i>27, April 2023</li>
-                                    <li><i class="feather-clock me-2"></i>05:00 PM to 07:00 PM</li>
-                                    <li><i class="feather-users me-2"></i>Total Hours : 3 Hrs</li>
-                                </ul>
-                            </div>
-                            <div style="text-align: center;">
-                                <img src="assets/img/sports-stadium_18181639.gif" alt="Payment Animation"
-                                    style="max-width: 60%; height: auto; object-fit: cover;">
-                            </div>
-                        </div>
 
-                        <div class="col-12 col-lg-5">
-                            <aside class="card payment-modes">
-                                <h3 class="border-bottom">Checkout</h3>
-                                <div class="radio" style="text-align: center;">
-                                    <img src="assets/img/money_17110647.gif" alt="Payment Animation"
-                                        style="width: 40%; max-width: 50%; height: auto; object-fit: cover;">
-                                    <img src="assets/img/happy_11186841.gif" alt="Payment Animation"
-                                        style="width: 30%; max-width: 30%; height: auto; object-fit: cover;">
-                                </div>
-                                <hr />
-                                <ul class="order-sub-total">
-                                    <li>
-                                        <p>Sports</p>
-                                        <h6>Cricket</h6>
-                                    </li>
-                                    <li>
-                                        <p>Total Slot(S) Base Price</p>
-                                        <h6>₹2,400</h6>
-                                    </li>
-                                    <li>
-                                        <p>Service charge</p>
-                                        <h6>+₹48</h6>
-                                    </li>
-                                </ul>
-                                <div class="order-total d-flex justify-content-between align-items-center">
-                                    <h5>Order Total</h5>
-                                    <h5>₹2448</h5>
-                                </div>
-                                <div class="form-check d-flex justify-content-start align-items-center policy">
-                                    <div class="d-inline-block"><input class="form-check-input" type="checkbox" value
-                                            id="policy" /></div>
-                                    <label class="form-check-label" for="policy">By clicking 'Send Request', I agree
-                                        to
-                                        Dreamsport <a href="privacy-policy.html">Privacy Policy</a> and <a
-                                            href="terms-condition.html">Terms of Use</a></label>
-                                </div>
-                                <div class="d-grid btn-block">
-                                    <button type="button" class="btn btn-primary" id="rzp-button1">Proceed
-                                        $200</button>
-                                </div>
-                            </aside>
-                        </div>
-                        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-                        <script>
-                            var options = {
-                                "key": "rzp_test_lFKziUf5eoehFb", // Enter the Key ID generated from the Dashboard
-                                "amount": "20000", // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
-                                "currency": "USD",
-                                "name": "Dreamsport",
-                                "description": "Payment for booking",
-                                "image": "https://example.com/your_logo",
-                                "order_id": "", //This is a sample Order ID. Pass the id obtained in the response of Step 1
-                                "handler": function (response) {
-                                    alert(response.razorpay_payment_id);
-                                    alert(response.razorpay_order_id);
-                                    alert(response.razorpay_signature);
-                                },
-                                "prefill": {
-                                    "name": "",
-                                    "email": "",
-                                    "contact": ""
-                                },
-                                "notes": {
-                                    "address": "Razorpay Corporate Office"
-                                },
-                                "theme": {
-                                    "color": "#F37254"
-                                }
-                            };
-                            var rzp1 = new Razorpay(options);
-                            document.getElementById('rzp-button1').onclick = function (e) {
-                                rzp1.open();
-                                e.preventDefault();
-                            }
-                        </script>
-                    </div>
-                    <div class="text-center btn-row">
-                        <button class="btn btn-primary me-3 btn-icon" onclick="prevStep(2)"><i
-                                class="feather-arrow-left-circle me-1"></i> Back</button>
-                    </div>
-                </section>
-            </div>
-        </div>
-
-
-
-        <?php
-        $query = "
+            <?php
+            $query = "
 SELECT events.*, turf_owners.turf_name, turf_owners.image 
 FROM events 
 LEFT JOIN turf_owners ON events.turf_id = turf_owners.id
 "; // Modified query to join tables
-        
-        $stmt = $conn->prepare($query); // Use your PDO connection variable
-        $stmt->execute();
-        $result = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all results as an associative array
-        ?>
+            
+            $stmt = $conn->prepare($query); // Use your PDO connection variable
+            $stmt->execute();
+            $result = $stmt->fetchAll(PDO::FETCH_ASSOC); // Fetch all results as an associative array
+            ?>
 
 
-
-        <!-- PHP Processing Logic -->
-        <!-- <script>
+        </div>
+    </div>
+    <!-- PHP Processing Logic -->
+    <!-- <script>
         let selectedSlot = null;
 
         function showAvailability(day) {
@@ -540,165 +490,203 @@ LEFT JOIN turf_owners ON events.turf_id = turf_owners.id
             return availability;
         }
     </script> -->
-        <script>
-            function scrollToSection(id) {
-                const element = document.getElementById(id);
-                if (element) {
-                    window.scrollTo({
-                        top: element.offsetTop,
-                        behavior: 'smooth'
-                    });
-                }
-            }
-        </script>
-        <script>
-            let selectedDate = "null";
-            let selectedSlot = "null";
 
-            // Handle Date Selection
-            document.querySelectorAll('.date-item').forEach(function (dateButton) {
-                dateButton.addEventListener('click', function () {
-                    selectedDate = this.getAttribute('data-date');
-                    document.getElementById("confirmationSlot").textContent = `${selectedDate}`
-                    console.log('Selected Date:', selectedDate);
-                    showTimeSlots(selectedDate);
+    <script>
+    document.getElementById('rzp-button1').onclick = function (e) {
+        // Collect necessary data for the booking
+        var bookingData = {
+            razorpay_payment_id: 'razorpay_payment_id_placeholder', // Replace with actual Razorpay payment ID after successful payment
+            razorpay_order_id: 'razorpay_order_id_placeholder', // Replace with actual Razorpay order ID
+            razorpay_signature: 'razorpay_signature_placeholder', // Replace with actual Razorpay signature
+            user_id: <?php echo $user['id']; ?>, // Pass the logged-in user's ID
+            game_id: <?php echo $gameId; ?>, // Pass the selected game ID
+            booking_date: document.getElementById('confirmationDate').textContent,
+            selected_slot: document.getElementById('confirmationSlot').textContent
+        };
+
+        // Send the data to the backend (payment_success.php) for processing
+        fetch('payment_success.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams(bookingData)
+        })
+        .then(response => response.text())
+        .then(data => {
+            alert(data); // Show the response message (success/failure)
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Something went wrong. Please try again.');
+        });
+        
+        // Prevent default form submission
+        e.preventDefault();
+    };
+</script>
+
+    <script>
+
+        
+        function scrollToSection(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                window.scrollTo({
+                    top: element.offsetTop,
+                    behavior: 'smooth'
                 });
+            }
+        }
+    </script>
+    <script>
+        let selectedDate = "null";
+        let selectedSlot = "null";
+
+        // Handle Date Selection
+        document.querySelectorAll('.date-item').forEach(function (dateButton) {
+            dateButton.addEventListener('click', function () {
+                selectedDate = this.getAttribute('data-date');
+                document.getElementById("confirmationSlot").textContent = `${selectedDate}`
+                console.log('Selected Date:', selectedDate);
+                showTimeSlots(selectedDate);
             });
+        });
 
-            // Function to show time slots for the selected date
-            function showTimeSlots(date) {
-                const timeSlotsContainer = document.getElementById('time-slots');
-                timeSlotsContainer.innerHTML = ''; // Clear previous slots
+        // Function to show time slots for the selected date
+        function showTimeSlots(date) {
+            const timeSlotsContainer = document.getElementById('time-slots');
+            timeSlotsContainer.innerHTML = ''; // Clear previous slots
 
-                // Example of slot data for the selected date (replace this with actual dynamic data)
-                const slots = <?php echo json_encode($availability); ?>;
+            // Example of slot data for the selected date (replace this with actual dynamic data)
+            const slots = <?php echo json_encode($availability); ?>;
 
-                if (slots[date] === "Holiday") {
-                    timeSlotsContainer.innerHTML = `<p>No slots available for this date. It's a holiday.</p>`;
-                } else {
-                    slots[date].forEach(function (slot) {
-                        const slotDiv = document.createElement('div');
-                        slotDiv.classList.add('col-md-3', 'slot');
-                        slotDiv.innerHTML = `<button class="btn btn-secondary slot-btn" data-slot="${slot}">${slot}</button>`;
-                        timeSlotsContainer.appendChild(slotDiv);
-                    });
+            if (slots[date] === "Holiday") {
+                timeSlotsContainer.innerHTML = `<p>No slots available for this date. It's a holiday.</p>`;
+            } else {
+                slots[date].forEach(function (slot) {
+                    const slotDiv = document.createElement('div');
+                    slotDiv.classList.add('col-md-3', 'slot');
+                    slotDiv.innerHTML = `<button class="btn btn-secondary slot-btn" data-slot="${slot}">${slot}</button>`;
+                    timeSlotsContainer.appendChild(slotDiv);
+                });
+            }
+        }
+
+        // Handle Time Slot Selection
+        document.addEventListener('click', function (event) {
+            if (event.target && event.target.classList.contains('slot-btn')) {
+                if (!event.target.disabled) {
+                    event.target.disabled = true;
+                    event.target.classList.add('disabled');
+                    event.target.innerHTML = 'Booked';
+                    selectedSlot = event.target.getAttribute('data-slot');
+                    document.getElementById("confirmationDate").textContent = `${selectedSlot}`
+                    console.log('Selected Slot:', selectedSlot);
                 }
             }
+        });
 
-            // Handle Time Slot Selection
-            document.addEventListener('click', function (event) {
-                if (event.target && event.target.classList.contains('slot-btn')) {
-                    if (!event.target.disabled) {
-                        event.target.disabled = true;
-                        event.target.classList.add('disabled');
-                        event.target.innerHTML = 'Booked';
-                        selectedSlot = event.target.getAttribute('data-slot');
-                        document.getElementById("confirmationDate").textContent = `${selectedSlot}`
-                        console.log('Selected Slot:', selectedSlot);
-                    }
-                }
-            });
-
-        </script>
-        <script>
+    </script>
+    <script>
 
 
-            // Slot selection
-            // Handle Time Slot Selection
-            document.addEventListener('click', function (event) {
-                if (event.target && event.target.classList.contains('slot-btn')) {
-                    if (!event.target.disabled) {
-                        event.target.disabled = true;
-                        event.target.classList.add('disabled');
-                        event.target.innerHTML = 'Booked...';
+        // Slot selection
+        // Handle Time Slot Selection
+        document.addEventListener('click', function (event) {
+            if (event.target && event.target.classList.contains('slot-btn')) {
+                if (!event.target.disabled) {
+                    event.target.disabled = true;
+                    event.target.classList.add('disabled');
+                    event.target.innerHTML = 'Booked...';
 
-                        // Make an AJAX request to mark the slot as booked (or use a form submission)
-                        const slotTime = event.target.getAttribute('data-slot');
-                        const date = selectedDate;
+                    // Make an AJAX request to mark the slot as booked (or use a form submission)
+                    const slotTime = event.target.getAttribute('data-slot');
+                    const date = selectedDate;
 
-                        // Example of AJAX request (using Fetch API)
-                        fetch('book_slot.php', {
-                            method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/json',
-                            },
-                            body: JSON.stringify({ date, slot: slotTime })
+                    // Example of AJAX request (using Fetch API)
+                    fetch('book_slot.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ date, slot: slotTime })
+                    })
+                        .then(response => response.json())
+                        .then(data => {
+                            if (data.success) {
+                                alert('Your booking has been confirmed!');
+                            } else {
+                                alert('Error booking the slot.');
+                            }
                         })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    alert('Your booking has been confirmed!');
-                                } else {
-                                    alert('Error booking the slot.');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                alert('There was an error with your booking.');
-                            });
-                    }
-                }
-            });
-
-
-            function submitSelection() {
-                if (selectedDate && selectedSlot) {
-                    // Set hidden input values for form submission
-                    document.getElementById('selectedDate').value = selectedDate;
-                    document.getElementById('selectedSlot').value = selectedSlot;
-
-                    // Dynamically update the second step UI
-                    document.getElementById('confirmationDate').textContent = selectedDate;
-                    document.getElementById('confirmationSlot').textContent = selectedSlot;
-
-                    // Display the second step and hide the first step
-                    document.getElementById('step1').style.display = 'none';  // Hide first step
-                    document.getElementById('step2').style.display = 'block'; // Show second step
-                } else {
-                    alert('Please select both a date and a time slot.');
+                        .catch(error => {
+                            console.error('Error:', error);
+                            alert('There was an error with your booking.');
+                        });
                 }
             }
+        });
 
-        </script>
-        <script>
-            function nextStep(stepNumber) {
-                document.querySelectorAll('.step').forEach(step => step.style.display = 'none');
-                document.getElementById(`step${stepNumber}`).style.display = 'block';
+
+        function submitSelection() {
+            if (selectedDate && selectedSlot) {
+                // Set hidden input values for form submission
+                document.getElementById('selectedDate').value = selectedDate;
+                document.getElementById('selectedSlot').value = selectedSlot;
+
+                // Dynamically update the second step UI
+                document.getElementById('confirmationDate').textContent = selectedDate;
+                document.getElementById('confirmationSlot').textContent = selectedSlot;
+
+                // Display the second step and hide the first step
+                document.getElementById('step1').style.display = 'none';  // Hide first step
+                document.getElementById('step2').style.display = 'block'; // Show second step
+            } else {
+                alert('Please select both a date and a time slot.');
             }
+        }
 
-            function prevStep(stepNumber) {
-                document.querySelectorAll('.step').forEach(step => step.style.display = 'none');
-                document.getElementById(`step${stepNumber}`).style.display = 'block';
-            }
+    </script>
+    <script>
+        function nextStep(stepNumber) {
+            document.querySelectorAll('.step').forEach(step => step.style.display = 'none');
+            document.getElementById(`step${stepNumber}`).style.display = 'block';
+        }
+
+        function prevStep(stepNumber) {
+            document.querySelectorAll('.step').forEach(step => step.style.display = 'none');
+            document.getElementById(`step${stepNumber}`).style.display = 'block';
+        }
 
 
-            function submitForm() {
-                alert("Form Submitted Successfully!");
-                // Place your form submission logic here.
-            }
-        </script>
+        function submitForm() {
+            alert("Form Submitted Successfully!");
+            // Place your form submission logic here.
+        }
+    </script>
 
-        <script data-cfasync="false" src="../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
-        <script src="assets/js/jquery-3.7.0.min.js" type="e06bcb4dc914a7bea883db46-text/javascript"></script>
+    <script data-cfasync="false" src="../cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+    <script src="assets/js/jquery-3.7.0.min.js" type="e06bcb4dc914a7bea883db46-text/javascript"></script>
 
-        <script src="assets/js/bootstrap.bundle.min.js" type="e06bcb4dc914a7bea883db46-text/javascript"></script>
+    <script src="assets/js/bootstrap.bundle.min.js" type="e06bcb4dc914a7bea883db46-text/javascript"></script>
 
-        <script src="assets/plugins/owl-carousel/owl.carousel.min.js"
-            type="e06bcb4dc914a7bea883db46-text/javascript"></script>
+    <script src="assets/plugins/owl-carousel/owl.carousel.min.js"
+        type="e06bcb4dc914a7bea883db46-text/javascript"></script>
 
-        <script src="assets/plugins/select2/js/select2.min.js" type="e06bcb4dc914a7bea883db46-text/javascript"></script>
+    <script src="assets/plugins/select2/js/select2.min.js" type="e06bcb4dc914a7bea883db46-text/javascript"></script>
 
-        <script src="assets/plugins/fancybox/jquery.fancybox.min.js"
-            type="e06bcb4dc914a7bea883db46-text/javascript"></script>
+    <script src="assets/plugins/fancybox/jquery.fancybox.min.js"
+        type="e06bcb4dc914a7bea883db46-text/javascript"></script>
 
-        <script src="assets/plugins/theia-sticky-sidebar/ResizeSensor.js"
-            type="e06bcb4dc914a7bea883db46-text/javascript"></script>
-        <script src="assets/plugins/theia-sticky-sidebar/theia-sticky-sidebar.js"
-            type="e06bcb4dc914a7bea883db46-text/javascript"></script>
+    <script src="assets/plugins/theia-sticky-sidebar/ResizeSensor.js"
+        type="e06bcb4dc914a7bea883db46-text/javascript"></script>
+    <script src="assets/plugins/theia-sticky-sidebar/theia-sticky-sidebar.js"
+        type="e06bcb4dc914a7bea883db46-text/javascript"></script>
 
-        <script src="assets/js/script.js" type="e06bcb4dc914a7bea883db46-text/javascript"></script>
-        <script src="../cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js"
-            data-cf-settings="e06bcb4dc914a7bea883db46-|49" defer></script>
+    <script src="assets/js/script.js" type="e06bcb4dc914a7bea883db46-text/javascript"></script>
+    <script src="../cdn-cgi/scripts/7d0fa10a/cloudflare-static/rocket-loader.min.js"
+        data-cf-settings="e06bcb4dc914a7bea883db46-|49" defer></script>
 </body>
 
 <!-- Mirrored from coach-detail.html by HTTrack Website Copier/3.x [XR&CO'2014], Mon, 23 Sep 2024 06:14:56 GMT -->
